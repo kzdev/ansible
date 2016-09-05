@@ -1,0 +1,9 @@
+---
+- hosts: web
+  vars:
+    hostname: www.kz-dev.com
+    environtment: production
+    user_name: nginx
+  roles:
+    - common/centos6
+    - nginx

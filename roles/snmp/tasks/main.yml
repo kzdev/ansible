@@ -1,0 +1,35 @@
+---
+# net-snmp installation
+- name: check exist net-snmp source file
+  command: ls -l {{src_dir}}/{{netsnmp_ver}}.tar.gz
+  ignore_errors: True
+  register: result1
+
+- name: get net-snmp source file
+  copy: src={{netsnmp_ver}}.tar.gz dest={{src_dir}}/{{netsnmp_ver}}.tar.gz
+  when: result1|failed
+
+- name: defreeze net-snmp source file
+  command: chdir={{src_dir}} tar xvzf {{netsnmp_ver}}.tar.gz
+  when: result1|failed
+
+- name: check netsnmp install
+  command: which snmpd
+  ignore_errors: True
+  register: result2
+
+- name: expand netsnmp src
+  command: chdir={{src_dir}} tar xvf {{netsnmp_ver}}.tar.gz
+  when: result2|failed
+
+- name: comfigure netsnmp
+  command: chdir={{src_dir}}/{{netsnmp_ver}} ./configure
+  when: result2|failed
+
+- name: make netsnmp
+  command: chdir={{src_dir}}/{{netsnmp_ver}} make
+  when: result2|failed
+
+- name: install netsnmp
+  command: chdir={{src_dir}}/{{netsnmp_ver}} make install
+  when: result2|failed

@@ -1,0 +1,79 @@
+---
+# package installation
+- name: add EPEL
+  sudo: true
+  shell: creates=/etc/yum.repos.d/epel.repo rpm -Uvh --replacepkgs http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+- name: yum update
+  sudo: true
+  yum: name=* state=latest
+- name: install basic packages
+  sudo: true
+  yum: name={{ item }} state=installed
+  with_items:
+    - git
+    - curl
+    - wget
+    - mercurial
+    - lua-devel
+    - libselinux-python
+    - ruby-devel
+    - readline-devel
+    - ncurses-devel
+    - gdbm-devel
+    - openssl-devel
+    - libxslt-devel
+    - sqlite-devel
+    - libyaml
+    - libyaml-devel
+    - tcl-devel
+    - db4-devel
+    - libffi-devel
+    - gcc
+    - libxml2
+    - libxml2-devel
+    - libxslt
+    - libxslt-devel
+    - ImageMagick
+    - ImageMagick-devel
+    - vim
+    - tar
+    - sudo
+    - ntp
+    - ntpdate
+
+- name: install Development Tool
+  sudo: true
+  shell: yum -y groupinstall "Development Tools" && yum -y groupinstall "Japanese Support"
+
+# add locale jp
+- name: add locale jp
+  sudo: true
+  shell: localedef -f UTF-8 -i ja_JP ja_JP.utf8 && sed -ri 's/en_US/ja_JP/' /etc/sysconfig/i18n
+
+# change sudoer
+- name: change sudoer
+  sudo: true
+  shell: sed -ri 's/Defaults    requiretty/#Defaults    requiretty/' /etc/sudoers
+
+# setting ntp
+- name: setting ntp
+  sudo: true
+  shell: /etc/init.d/ntpd stop && ntpdate ntp.nict.jp && /etc/init.d/ntpd start && chkconfig ntpd on
+
+# timezone
+- name: set timezone
+  sudo: true
+  file: src=/usr/share/zoneinfo/Asia/Tokyo dest=/etc/localtime state=link force=yes
+
+# hostname
+#- name: set hostname
+#  sudo: true
+#  hostname: name={{ hostname }}
+#- name: set /etc/hosts
+#  sudo: true
+#  lineinfile: dest=/etc/hosts regexp=^127\.0\.0\.1 line='127.0.0.1 {{ hostname }} localhost localhost.localdomain'
+
+# DNS Information
+- name: update resolv.conf
+  sudo: true
+  shell: chmod a+w /etc/resolv.conf && echo 'options single-request-reopen' >> /etc/resolv.conf

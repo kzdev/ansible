@@ -1,0 +1,38 @@
+---
+- name: chmod /var
+  sudo: true
+  file: path=/var mode=0755
+- name: create rails folder
+  sudo: true
+  shell: mkdir -p /var/rails/
+  ignore_errors: yes
+- name: chmod /var/rails
+  sudo: true
+  file: path=/var/rails/ mode=0755
+#- name: set folder owner
+#  sudo: true
+#  shell: chown {{ user_name }}.{{ user_name }} /var/rails/
+- name: set folder permission
+  sudo: true
+  shell: chmod 777 -R /var/rails/
+- name: gem install pg
+  sudo_user: root
+  shell: export PATH=${PATH}:/usr/pgsql-9.4/bin && bash -lc "rvm use {{ ruby_version }} && gem install pg"
+  ignore_errors: yes
+- name: gem install foreman
+  sudo_user: root
+  shell: bash -lc "rvm use {{ ruby_version }} && gem install foreman"
+  ignore_errors: yes
+- name: gem install bundle
+  sudo_user: root
+  shell: bash -lc "rvm use {{ ruby_version }} && gem install bundle"
+  ignore_errors: yes
+- name: yum install cron
+  sudo: true
+  yum: name=crontabs state=installed
+- name: yum install redis
+  sudo: true
+  yum: name=redis state=installed
+- name: start redis
+  sudo: true
+  shell: /etc/init.d/redis start

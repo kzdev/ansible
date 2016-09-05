@@ -1,0 +1,17 @@
+---
+- hosts: shipping
+  vars:
+    hostname: www.kz-dev.com
+    environtment: production
+    ruby_version: 2.2.0
+    user_name: nginx
+    postgres_user: pgsql
+  roles:
+    - common/centos6
+#    - swap
+    - postgresql
+    - rvm
+    - nginx
+    - rails
+    - nodejs
+#    - iptables

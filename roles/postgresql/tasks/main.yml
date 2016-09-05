@@ -1,0 +1,40 @@
+---
+- name: move src folder
+  shell: cd /usr/local/src
+- name:  get PostgreSQL rpm
+  shell: wget -P /tmp http://yum.postgresql.org/9.4/redhat/rhel-6-x86_64/pgdg-centos94-9.4-1.noarch.rpm
+- name: set PostgreSQL rpm
+  sudo: true
+  shell: rpm -ivh /tmp/pgdg-centos94-9.4-1.noarch.rpm
+  ignore_errors: yes
+- name: install PostgreSQL
+  sudo: true
+  yum: name={{ item }} state=installed
+  with_items:
+    - postgresql94-server
+    - postgresql94-devel
+    - postgresql94-contrib
+- name: pgsql mkdir
+  sudo: true
+  shell: mkdir -p /var/lib/pgsql/9.4/data && chown -R postgres:postgres /var/lib/pgsql
+- name: intilize PostgreSQL
+  sudo: true
+  shell: sudo -u postgres /usr/pgsql-9.4/bin/initdb --encoding=UTF-8 --locale=ja_JP.UTF-8 -D /var/lib/pgsql/9.4/data
+- name: start PostgreSQL
+  sudo: true
+  shell: /etc/rc.d/init.d/postgresql-9.4 start
+- name: set auto start PostgreSQL
+  sudo: true
+  shell: chkconfig postgresql-9.4 on
+- name: set path to bashrc
+  shell: echo "export PATH=${PATH}:/usr/pgsql-9.4/bin" >> ~/.bashrc && source ~/.bashrc
+- name: Copy pg_hba.conf
+  sudo: true
+  copy: src=pg_hba.conf dest=/var/lib/pgsql/9.4/data/
+- name: Copy postgresql.conf
+  sudo: true
+  copy: src=postgresql.conf dest=/var/lib/pgsql/9.4/data/
+- name: create role
+  sudo: true
+  shell: sudo -u postgres psql -U postgres -c "create role kzdev password 'kzdev'"
+  notify: restart postgresql-9.4

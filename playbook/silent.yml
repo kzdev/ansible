@@ -1,0 +1,6 @@
+---
+- hosts: silent
+  vars:
+    vim_srcdir: /tmp
+  roles:
+    - vim

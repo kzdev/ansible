@@ -1,0 +1,11 @@
+---
+- hosts: pg
+  vars:
+    hostname: www.kz-dev.com
+    environtment: production
+    ruby_version: 2.2.0
+    user_name: root
+    postgres_user: pgsql
+  roles:
+    - common
+    - postgresql

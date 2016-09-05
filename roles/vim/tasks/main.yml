@@ -1,0 +1,27 @@
+---
+- stat: path={{ vim_srcdir }}
+  register: f
+
+- name: vim source download
+  sudo: true
+  shell: cd {{ vim_srcdir }} && hg clone https://vim.googlecode.com/hg/ vim
+  when: not f.stat.exists
+
+# configure
+- name: configure
+  sudo: true
+  command: chdir={{ vim_srcdir }}/vim ./configure --enable-multibyte --with-features=kzdev --disable-selinux \
+           --prefix=/usr/local -enable-luainterp=yes --with-lua-prefix=/usr
+  when: not f.stat.exists
+
+# make
+- name: make
+  sudo: true
+  command: chdir={{ vim_srcdir }}/vim make
+  when: not f.stat.exists
+
+# make install
+- name: make install
+  sudo: true
+  command: chdir={{ vim_srcdir }}/vim make install
+  when: not f.stat.exists

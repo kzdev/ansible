@@ -1,0 +1,32 @@
+---
+- name: install nginx
+  sudo: true
+  yum: name=nginx state=installed
+- name: ensure nginx/conf.d is empty
+  sudo: true
+  shell: rm -f /etc/nginx/conf.d/*
+- name: place nginx conf file
+  sudo: true
+  template: src={{ use_language }}/nginx.conf dest=/etc/nginx/nginx.conf
+  notify: restart nginx
+- name: mkdir nginx ssl directory
+  sudo: true
+  file: path=/etc/nginx/ssl state=directory owner=root group=root mode=0755
+- name: place nginx ssl crt file
+  sudo: true
+  template: src=ssl/server.crt dest=/etc/nginx/ssl/server.crt
+- name: place nginx ssl key file
+  sudo: true
+  template: src=ssl/server.key dest=/etc/nginx/ssl/server.key
+- name: create nginx/access.log & error.log
+  sudo: true
+  shell: touch /var/log/nginx/access.log && touch /var/log/nginx/error.log
+- name: set access log file permission
+  sudo: true
+  file: path=/var/log/nginx/access.log owner=nginx group=nginx mode=0644
+- name: set error log file permission
+  sudo: true
+  file: path=/var/log/nginx/error.log owner=nginx group=nginx mode=0644
+- name: set auto start
+  sudo: true
+  shell: chkconfig nginx on
